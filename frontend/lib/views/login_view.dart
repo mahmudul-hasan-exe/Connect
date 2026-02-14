@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
+
 import '../controllers/auth_controller.dart';
-import 'chats_view.dart';
+import 'inbox_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -13,31 +14,61 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final _nameController = TextEditingController();
   bool _loading = false;
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
+  Future<void> _signInWithGoogle() async {
+    context.read<AuthController>().clearAuthError();
+    setState(() => _loading = true);
+    try {
+      await context.read<AuthController>().signInWithGoogle();
+      if (!mounted) return;
+      final auth = context.read<AuthController>();
+      if (auth.hasVerifiedSession) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful'),
+            backgroundColor: Color(0xFF2A7DD4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const InboxView()),
+            (route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        final msg = e.toString().replaceFirst('Exception: ', '').replaceFirst('StateError: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+    if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _submit() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
-    setState(() => _loading = true);
-    final ok = await context.read<AuthController>().login(name);
-    setState(() => _loading = false);
-    if (!mounted) return;
-    if (ok) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ChatsView()),
+  void _checkAndNavigateToHome() {
+    final auth = context.read<AuthController>();
+    if (auth.hasVerifiedSession && mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const InboxView()),
+        (route) => false,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthController>();
+    if (auth.hasVerifiedSession) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkAndNavigateToHome());
+    }
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -54,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(IconlyBold.message, size: 80, color: Colors.white),
+                  const Icon(IconlyBold.message, size: 80, color: Colors.white),
                   const SizedBox(height: 24),
                   Text(
                     'Connect',
@@ -67,50 +98,59 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Enter your name to get started',
+                    'Sign in with Google to get started',
                     style: GoogleFonts.poppins(
                       fontSize: 15,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
-                  const SizedBox(height: 48),
-                  TextField(
-                    controller: _nameController,
-                    textCapitalization: TextCapitalization.words,
-                    autocorrect: false,
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 17),
-                    decoration: InputDecoration(
-                      hintText: 'Your name',
-                      hintStyle: GoogleFonts.poppins(color: Colors.white.withOpacity(0.6)),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.2),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                  if (auth.authError != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        auth.authError!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                     ),
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  const SizedBox(height: 24),
+                  ],
+                  const SizedBox(height: 48),
                   SizedBox(
                     width: double.infinity,
                     height: 52,
-                    child: ElevatedButton(
-                      onPressed: _loading ? null : _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF2A7DD4),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: _loading
+                    child: OutlinedButton.icon(
+                      onPressed: _loading ? null : _signInWithGoogle,
+                      icon: _loading
                           ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
                             )
-                          : Text('Continue', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.w600)),
+                          : const Icon(Icons.g_mobiledata_rounded,
+                              color: Colors.white, size: 28),
+                      label: Text(
+                        _loading ? 'Signing in...' : 'Continue with Google',
+                        style: GoogleFonts.poppins(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.2),
+                        foregroundColor: Colors.white,
+                        side:
+                            const BorderSide(color: Colors.white54, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
                   ),
                 ],

@@ -1,11 +1,15 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
+import '../config/app_config.dart';
 import '../models/chat_model.dart';
+import '../models/connection_request_model.dart';
 import '../models/message_model.dart';
 import '../models/user_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000';
+  static String get baseUrl => AppConfig.instance.apiBaseUrl;
 
   String? token;
 
@@ -16,20 +20,38 @@ class ApiService {
         if (token != null) 'Authorization': token!,
       };
 
-  Future<Map<String, dynamic>> auth({required String name, String? avatar}) async {
+  Future<Map<String, dynamic>> authWithSupabase(String accessToken) async {
+    final uri = Uri.parse('$baseUrl/api/auth/supabase');
     final res = await http.post(
-      Uri.parse('$baseUrl/api/auth'),
-      headers: _headers,
-      body: jsonEncode({'name': name, 'avatar': avatar}),
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'accessToken': accessToken}),
     );
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    return data;
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final err = jsonDecode(res.body) as Map<String, dynamic>?;
+        throw Exception(err?['error'] as String? ?? 'Auth failed (${res.statusCode})');
+      } catch (_) {
+        throw Exception('Auth failed: ${res.statusCode} ${res.body.length > 100 ? "${res.body.substring(0, 100)}..." : res.body}');
+      }
+    }
+    try {
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      return data;
+    } catch (_) {
+      throw Exception('Invalid server response');
+    }
   }
 
   Future<List<UserModel>> getUsers() async {
-    final res = await http.get(Uri.parse('$baseUrl/api/users'), headers: _headers);
+    final res =
+        await http.get(Uri.parse('$baseUrl/api/users'), headers: _headers);
     final list = jsonDecode(res.body) as List;
-    return list.map((e) => UserModel.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<UserModel>> getUsersWithStatus(String userId) async {
@@ -38,7 +60,9 @@ class ApiService {
       headers: _headers,
     );
     final list = jsonDecode(res.body) as List;
-    return list.map((e) => UserModel.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> sendConnectionRequest(String fromUserId, String toUserId) async {
@@ -53,7 +77,8 @@ class ApiService {
     }
   }
 
-  Future<List<ConnectionRequestModel>> getReceivedRequests(String userId) async {
+  Future<List<ConnectionRequestModel>> getReceivedRequests(
+      String userId) async {
     final res = await http.get(
       Uri.parse('$baseUrl/api/connection-requests/received/$userId'),
       headers: _headers,
@@ -75,12 +100,16 @@ class ApiService {
   }
 
   Future<List<ChatModel>> getChats(String userId) async {
-    final res = await http.get(Uri.parse('$baseUrl/api/chats/$userId'), headers: _headers);
+    final res = await http.get(Uri.parse('$baseUrl/api/chats/$userId'),
+        headers: _headers);
     final list = jsonDecode(res.body) as List;
-    return list.map((e) => ChatModel.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => ChatModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<Map<String, dynamic>> getMessages(String chatId, {String? userId}) async {
+  Future<Map<String, dynamic>> getMessages(String chatId,
+      {String? userId}) async {
     var url = '$baseUrl/api/messages/$chatId';
     if (userId != null && userId.isNotEmpty) url += '?userId=$userId';
     final res = await http.get(Uri.parse(url), headers: _headers);
@@ -88,14 +117,18 @@ class ApiService {
     if (data is Map<String, dynamic>) {
       final list = data['messages'] as List? ?? [];
       return {
-        'messages': list.map((e) => MessageModel.fromJson(e as Map<String, dynamic>)).toList(),
+        'messages': list
+            .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
         'blockedByThem': data['blockedByThem'] as bool? ?? false,
         'iBlockedThem': data['iBlockedThem'] as bool? ?? false,
       };
     }
     final list = data as List;
     return {
-      'messages': list.map((e) => MessageModel.fromJson(e as Map<String, dynamic>)).toList(),
+      'messages': list
+          .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       'blockedByThem': false,
       'iBlockedThem': false,
     };
@@ -107,7 +140,9 @@ class ApiService {
       headers: _headers,
       body: jsonEncode({'blockerId': blockerId, 'blockedId': blockedId}),
     );
-    if (res.statusCode < 200 || res.statusCode >= 300) throw Exception('Failed to block');
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception('Failed to block');
+    }
   }
 
   Future<void> unblockUser(String blockerId, String blockedId) async {
@@ -116,10 +151,13 @@ class ApiService {
       headers: _headers,
       body: jsonEncode({'blockerId': blockerId, 'blockedId': blockedId}),
     );
-    if (res.statusCode < 200 || res.statusCode >= 300) throw Exception('Failed to unblock');
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception('Failed to unblock');
+    }
   }
 
-  Future<ChatModel?> createChat(String userId, List<String> participantIds) async {
+  Future<ChatModel?> createChat(
+      String userId, List<String> participantIds) async {
     final res = await http.post(
       Uri.parse('$baseUrl/api/chats'),
       headers: _headers,

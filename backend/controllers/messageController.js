@@ -27,7 +27,10 @@ async function getByChatId(req, res, next) {
         { chat: chatObjId, sender: { $ne: userObjId } },
         { status: 'read' }
       );
-      const updated = await Message.find({ chat: chatObjId, sender: { $ne: userObjId } })
+      const updated = await Message.find({
+        chat: chatObjId,
+        sender: { $ne: userObjId },
+      })
         .select('_id sender')
         .lean();
       const io = req.app.get('io');
@@ -47,13 +50,17 @@ async function getByChatId(req, res, next) {
         }
       });
     }
-    const list = await Message.find({ chat: new mongoose.Types.ObjectId(chatId) })
+    const list = await Message.find({
+      chat: new mongoose.Types.ObjectId(chatId),
+    })
       .sort({ createdAt: 1 })
       .lean();
     const result = list.map(formatMessageResponse);
     if (userId) {
       const chatDoc = await Chat.findById(chatId).lean();
-      const otherId = chatDoc?.participants?.find((p) => p.toString() !== userId)?.toString();
+      const otherId = chatDoc?.participants
+        ?.find((p) => p.toString() !== userId)
+        ?.toString();
       const blockedByThem = otherId ? await isBlocked(otherId, userId) : false;
       const iBlockedThem = otherId ? await isBlocked(userId, otherId) : false;
       return res.json({ messages: result, blockedByThem, iBlockedThem });

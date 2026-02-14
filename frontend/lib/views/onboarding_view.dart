@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import '../services/storage_service.dart';
-import 'splash_screen.dart';
+import 'app_entry_view.dart';
 
 class _OnboardingPage {
   final IconData icon;
@@ -25,7 +25,7 @@ class OnboardingView extends StatefulWidget {
 
 class _OnboardingViewState extends State<OnboardingView> {
   final _controller = PageController();
-  static final _pages = [
+  static const _pages = [
     _OnboardingPage(
       icon: IconlyBold.message,
       title: 'Real-time chat',
@@ -95,7 +95,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                         Container(
                           padding: const EdgeInsets.all(28),
                           decoration: BoxDecoration(
-                            color: colorScheme.primary.withOpacity(0.15),
+                            color: colorScheme.primary.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -146,7 +146,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                         decoration: BoxDecoration(
                           color: _current == i
                               ? colorScheme.primary
-                              : colorScheme.onSurfaceVariant.withOpacity(0.4),
+                              : colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),

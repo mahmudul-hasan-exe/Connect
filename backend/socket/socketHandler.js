@@ -21,7 +21,11 @@ function attachSocketHandler(io) {
       clearTimeout(authTimeout);
       currentUserId = userId;
       setOnline(userId, socket.id);
-      socket.broadcast.emit('user_online', { userId, online: true, lastSeen: null });
+      socket.broadcast.emit('user_online', {
+        userId,
+        online: true,
+        lastSeen: null,
+      });
     });
 
     socket.on('send_message', async (data) => {
@@ -51,12 +55,24 @@ function attachSocketHandler(io) {
           if (otherId) {
             const otherIdStr = otherId.toString();
             incrementUnread(chatId, otherIdStr);
-            const recipientBlockedSender = await isBlocked(otherIdStr, senderId);
+            const recipientBlockedSender = await isBlocked(
+              otherIdStr,
+              senderId
+            );
             const otherSocketId = getSocketId(otherIdStr);
             if (otherSocketId && !recipientBlockedSender) {
-              io.to(otherSocketId).emit('message', { ...payload, status: 'delivered' });
-              await Message.updateOne({ _id: msg._id }, { status: 'delivered' });
-              io.to(socket.id).emit('message_status', { messageId: payload.id, status: 'delivered' });
+              io.to(otherSocketId).emit('message', {
+                ...payload,
+                status: 'delivered',
+              });
+              await Message.updateOne(
+                { _id: msg._id },
+                { status: 'delivered' }
+              );
+              io.to(socket.id).emit('message_status', {
+                messageId: payload.id,
+                status: 'delivered',
+              });
             }
           }
         }

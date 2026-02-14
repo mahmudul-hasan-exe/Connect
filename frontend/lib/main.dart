@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'controllers/auth_controller.dart';
-import 'controllers/chat_controller.dart';
-import 'theme/app_theme.dart';
-import 'views/splash_screen.dart';
-import 'widgets/app_lifecycle_handler.dart';
 
-void main() {
+import 'package:connect_app/config/app_config.dart';
+import 'package:connect_app/controllers/auth_controller.dart';
+import 'package:connect_app/controllers/chat_controller.dart';
+import 'package:connect_app/services/supabase_auth_service.dart';
+import 'package:connect_app/theme/app_theme.dart';
+import 'package:connect_app/views/app_entry_view.dart';
+import 'package:connect_app/widgets/app_lifecycle_handler.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.load();
+  await SupabaseAuthService.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -34,7 +39,7 @@ class ConnectApp extends StatelessWidget {
         title: 'Connect',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        home: const AppLifecycleHandler(child: SplashScreen()),
+        home: const AppLifecycleHandler(child: AppEntryView()),
       ),
     );
   }

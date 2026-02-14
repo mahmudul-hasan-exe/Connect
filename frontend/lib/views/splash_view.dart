@@ -23,7 +23,7 @@ class SplashView extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   IconlyBold.message,
                   size: 72,
                   color: Colors.white,

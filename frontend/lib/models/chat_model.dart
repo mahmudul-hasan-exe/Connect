@@ -26,8 +26,12 @@ class ChatModel {
     return ChatModel(
       id: json['id'] as String,
       participants: List<String>.from(json['participants'] as List? ?? []),
-      otherUser: json['otherUser'] != null ? UserModel.fromJson(json['otherUser'] as Map<String, dynamic>) : null,
-      lastMessage: json['lastMessage'] != null ? MessageModel.fromJson(json['lastMessage'] as Map<String, dynamic>) : null,
+      otherUser: json['otherUser'] != null
+          ? UserModel.fromJson(json['otherUser'] as Map<String, dynamic>)
+          : null,
+      lastMessage: json['lastMessage'] != null
+          ? MessageModel.fromJson(json['lastMessage'] as Map<String, dynamic>)
+          : null,
       createdAt: json['createdAt'] is int ? json['createdAt'] as int : 0,
       unread: json['unread'] as int? ?? 0,
       blockedByThem: json['blockedByThem'] as bool? ?? false,

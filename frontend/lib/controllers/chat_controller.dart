@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/chat_model.dart';
+import '../models/connection_request_model.dart';
 import '../models/message_model.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
@@ -109,7 +110,8 @@ class ChatController with ChangeNotifier {
         blockedByThem: c.blockedByThem,
         iBlockedThem: c.iBlockedThem,
       );
-      list.sort((a, b) => (b.lastMessage?.createdAt ?? b.createdAt).compareTo(a.lastMessage?.createdAt ?? a.createdAt));
+      list.sort((a, b) => (b.lastMessage?.createdAt ?? b.createdAt)
+          .compareTo(a.lastMessage?.createdAt ?? a.createdAt));
       _chats = list;
       notifyListeners();
     }
@@ -152,10 +154,12 @@ class ChatController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> acceptConnectionRequest(String requestId, String myUserId) async {
+  Future<bool> acceptConnectionRequest(
+      String requestId, String myUserId) async {
     try {
       await _api.acceptConnectionRequest(requestId);
-      _receivedRequests = _receivedRequests.where((r) => r.id != requestId).toList();
+      _receivedRequests =
+          _receivedRequests.where((r) => r.id != requestId).toList();
       await loadUsersWithStatus(myUserId);
       notifyListeners();
       return true;

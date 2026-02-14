@@ -3,7 +3,10 @@ const connectionRequestController = require('../controllers/connectionRequestCon
 
 const router = express.Router();
 
-router.get('/users-with-status/:userId', connectionRequestController.usersWithStatus);
+router.get(
+  '/users-with-status/:userId',
+  connectionRequestController.usersWithStatus
+);
 router.post('/', connectionRequestController.send);
 router.get('/received/:userId', connectionRequestController.getReceived);
 router.patch('/:id/accept', connectionRequestController.accept);

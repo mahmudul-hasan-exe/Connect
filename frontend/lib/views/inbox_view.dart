@@ -4,22 +4,22 @@ import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/chat_controller.dart';
-import '../models/user_model.dart';
+import '../models/connection_request_model.dart';
 import '../theme/app_colors.dart';
-import 'chat_view.dart';
-import 'new_chat_view.dart';
+import 'conversation_view.dart';
+import 'create_chat_view.dart';
 import 'notification_view.dart';
 import 'profile_view.dart';
 import 'widgets/chat_tile.dart';
 
-class ChatsView extends StatefulWidget {
-  const ChatsView({super.key});
+class InboxView extends StatefulWidget {
+  const InboxView({super.key});
 
   @override
-  State<ChatsView> createState() => _ChatsViewState();
+  State<InboxView> createState() => _InboxViewState();
 }
 
-class _ChatsViewState extends State<ChatsView> {
+class _InboxViewState extends State<InboxView> {
   @override
   void initState() {
     super.initState();
@@ -30,12 +30,17 @@ class _ChatsViewState extends State<ChatsView> {
       chat.loadChats(auth.user!.id);
       chat.loadUsers();
       chat.loadReceivedRequests(auth.user!.id);
-      auth.socket.setOnMessage((msg) => chat.addMessage(msg, myUserId: auth.user?.id));
-      auth.socket.setOnMessageStatus((messageId, status) => chat.updateMessageStatus(messageId, status));
-      auth.socket.setOnUserOnline((userId, online, lastSeen) => chat.updateUserStatus(userId, online, lastSeen));
-      auth.socket.setOnTyping((chatId, userId, isTyping) => chat.setTyping(chatId, userId, isTyping));
+      auth.socket
+          .setOnMessage((msg) => chat.addMessage(msg, myUserId: auth.user?.id));
+      auth.socket.setOnMessageStatus(
+          (messageId, status) => chat.updateMessageStatus(messageId, status));
+      auth.socket.setOnUserOnline((userId, online, lastSeen) =>
+          chat.updateUserStatus(userId, online, lastSeen));
+      auth.socket.setOnTyping((chatId, userId, isTyping) =>
+          chat.setTyping(chatId, userId, isTyping));
       auth.socket.setOnFriendRequest((data) {
-        final r = ConnectionRequestModel.fromJson(Map<String, dynamic>.from(data));
+        final r =
+            ConnectionRequestModel.fromJson(Map<String, dynamic>.from(data));
         chat.addReceivedRequest(r);
       });
       auth.socket.setOnFriendRequestAccepted((_) {
@@ -114,7 +119,8 @@ class _ChatsViewState extends State<ChatsView> {
             clipBehavior: Clip.none,
             children: [
               IconButton(
-                icon: Icon(IconlyLight.notification, color: colorScheme.onSurface, size: 22),
+                icon: Icon(IconlyLight.notification,
+                    color: colorScheme.onSurface, size: 22),
                 onPressed: () {
                   chat.loadReceivedRequests(auth.user!.id);
                   Navigator.of(context).push(
@@ -132,10 +138,14 @@ class _ChatsViewState extends State<ChatsView> {
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
-                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    constraints:
+                        const BoxConstraints(minWidth: 18, minHeight: 18),
                     child: Text(
                       '${chat.pendingRequestsCount + chat.totalUnreadCount > 99 ? 99 : chat.pendingRequestsCount + chat.totalUnreadCount}',
-                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -188,7 +198,9 @@ class _ChatsViewState extends State<ChatsView> {
                         const SizedBox(height: 16),
                         Text(
                           'Loading chats...',
-                          style: GoogleFonts.poppins(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                          style: GoogleFonts.poppins(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 14),
                         ),
                       ],
                     ),
@@ -196,11 +208,13 @@ class _ChatsViewState extends State<ChatsView> {
                 : chat.chats.isEmpty
                     ? _EmptyState(onStartChat: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const NewChatView()),
+                          MaterialPageRoute(
+                              builder: (_) => const CreateChatView()),
                         );
                       })
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         itemCount: chat.chats.length,
                         itemBuilder: (context, i) {
                           final c = chat.chats[i];
@@ -208,11 +222,12 @@ class _ChatsViewState extends State<ChatsView> {
                             padding: const EdgeInsets.only(bottom: 8),
                             child: ChatTile(
                               chat: c,
-                              isOtherTyping: chat.isOtherTyping(c.id, c.otherUser?.id),
+                              isOtherTyping:
+                                  chat.isOtherTyping(c.id, c.otherUser?.id),
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => ChatView(chat: c),
+                                    builder: (_) => ConversationView(chat: c),
                                   ),
                                 );
                               },
@@ -228,7 +243,7 @@ class _ChatsViewState extends State<ChatsView> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.4),
+                    color: AppColors.primary.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -237,12 +252,13 @@ class _ChatsViewState extends State<ChatsView> {
               child: FloatingActionButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const NewChatView()),
+                    MaterialPageRoute(builder: (_) => const CreateChatView()),
                   );
                 },
                 backgroundColor: AppColors.primary,
                 elevation: 0,
-                child: const Icon(IconlyBold.plus, color: AppColors.onPrimary, size: 28),
+                child: const Icon(IconlyBold.plus,
+                    color: AppColors.onPrimary, size: 28),
               ),
             )
           : null,
@@ -267,13 +283,13 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.12),
+                color: colorScheme.primary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 IconlyLight.message,
                 size: 56,
-                color: colorScheme.primary.withOpacity(0.9),
+                color: colorScheme.primary.withValues(alpha: 0.9),
               ),
             ),
             const SizedBox(height: 24),
@@ -304,11 +320,13 @@ class _EmptyState extends StatelessWidget {
                 onTap: onStartChat,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(IconlyBold.plus, color: AppColors.onPrimary, size: 22),
+                      const Icon(IconlyBold.plus,
+                          color: AppColors.onPrimary, size: 22),
                       const SizedBox(width: 10),
                       Text(
                         'Start chat',

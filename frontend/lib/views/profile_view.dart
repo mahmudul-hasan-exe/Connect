@@ -4,7 +4,7 @@ import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
 import '../theme/app_colors.dart';
-import 'login_view.dart';
+import 'app_entry_view.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -22,7 +22,8 @@ class ProfileView extends StatelessWidget {
         backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(IconlyLight.arrow_left_2, color: colorScheme.onSurface, size: 24),
+          icon: Icon(IconlyLight.arrow_left_2,
+              color: colorScheme.onSurface, size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -48,7 +49,9 @@ class ProfileView extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isOnline ? AppColors.online : colorScheme.outline.withOpacity(0.3),
+                        color: isOnline
+                            ? AppColors.online
+                            : colorScheme.outline.withValues(alpha: 0.3),
                         width: 3,
                       ),
                     ),
@@ -64,22 +67,26 @@ class ProfileView extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             )
-                          : const Icon(IconlyBold.profile, color: Colors.white, size: 48),
+                          : const Icon(IconlyBold.profile,
+                              color: Colors.white, size: 48),
                     ),
                   ),
                   Positioned(
                     right: 4,
                     bottom: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isOnline ? AppColors.online : AppColors.offlineBadge,
+                        color: isOnline
+                            ? AppColors.online
+                            : AppColors.offlineBadge,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: AppColors.shadow,
                             blurRadius: 6,
-                            offset: const Offset(0, 2),
+                            offset: Offset(0, 2),
                           ),
                         ],
                       ),
@@ -89,7 +96,7 @@ class ProfileView extends StatelessWidget {
                           Container(
                             width: 8,
                             height: 8,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
@@ -134,7 +141,7 @@ class ProfileView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,35 +151,41 @@ class ProfileView extends StatelessWidget {
                     label: 'Account',
                     value: user?.name ?? '—',
                   ),
-                  Divider(height: 24, color: colorScheme.outline.withOpacity(0.2)),
+                  Divider(
+                      height: 24, color: colorScheme.outline.withValues(alpha: 0.2)),
                   _ProfileRow(
                     icon: IconlyLight.info_circle,
                     label: 'Status',
                     value: isOnline ? 'Online' : 'Offline',
-                    valueColor: isOnline ? AppColors.online : colorScheme.onSurfaceVariant,
+                    valueColor: isOnline
+                        ? AppColors.online
+                        : colorScheme.onSurfaceVariant,
                   ),
-                  Divider(height: 24, color: colorScheme.outline.withOpacity(0.2)),
+                  Divider(
+                      height: 24, color: colorScheme.outline.withValues(alpha: 0.2)),
                   _ProfileRow(
                     icon: IconlyLight.shield_done,
                     label: 'ID',
                     value: user?.id ?? '—',
-                    valueStyle: GoogleFonts.poppins(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                    valueStyle: GoogleFonts.poppins(
+                        fontSize: 12, color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
                   auth.logout();
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const LoginView()),
+                    MaterialPageRoute(builder: (_) => const SessionLoader()),
                     (route) => false,
                   );
                 },
-                icon: const Icon(IconlyLight.logout, size: 22, color: AppColors.logout),
+                icon: const Icon(IconlyLight.logout,
+                    size: 22, color: AppColors.logout),
                 label: Text(
                   'Log out',
                   style: GoogleFonts.poppins(
@@ -189,6 +202,15 @@ class ProfileView extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Log out to sign in with another Gmail account',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
           ],

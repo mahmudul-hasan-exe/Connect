@@ -12,8 +12,12 @@ String formatLastSeen(int? lastSeenMs) {
   if (diff.inSeconds < 60) return 'Last seen just now';
   if (diff.inMinutes < 60) return 'Last seen ${diff.inMinutes} min ago';
   if (diff.inHours < 24) return 'Last seen ${diff.inHours} hr ago';
-  if (thenDate == yesterday) return 'Last seen yesterday at ${DateFormat('HH:mm').format(then)}';
+  if (thenDate == yesterday) {
+    return 'Last seen yesterday at ${DateFormat('HH:mm').format(then)}';
+  }
   if (diff.inDays < 7) return 'Last seen ${diff.inDays} days ago';
-  if (then.year == now.year) return 'Last seen ${DateFormat('MMM d').format(then)}';
+  if (then.year == now.year) {
+    return 'Last seen ${DateFormat('MMM d').format(then)}';
+  }
   return 'Last seen ${DateFormat('MMM d, yyyy').format(then)}';
 }

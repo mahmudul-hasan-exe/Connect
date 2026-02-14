@@ -39,7 +39,8 @@ class SocketService {
     });
   }
 
-  void setOnMessageStatus(void Function(String messageId, String status) callback) {
+  void setOnMessageStatus(
+      void Function(String messageId, String status) callback) {
     _socket?.off('message_status');
     _socket?.on('message_status', (data) {
       if (data is Map<String, dynamic>) {
@@ -61,7 +62,8 @@ class SocketService {
     _socket?.off('message_status');
   }
 
-  void setOnTyping(void Function(String chatId, String userId, bool isTyping) callback) {
+  void setOnTyping(
+      void Function(String chatId, String userId, bool isTyping) callback) {
     _socket?.off('typing');
     _socket?.on('typing', (data) {
       if (data is Map<String, dynamic>) {
@@ -78,21 +80,24 @@ class SocketService {
     _socket?.off('typing');
   }
 
-  void setOnFriendRequest(void Function(Map<String, dynamic> request) callback) {
+  void setOnFriendRequest(
+      void Function(Map<String, dynamic> request) callback) {
     _socket?.off('friend_request');
     _socket?.on('friend_request', (data) {
       if (data is Map<String, dynamic>) callback(data);
     });
   }
 
-  void setOnFriendRequestAccepted(void Function(Map<String, dynamic> data) callback) {
+  void setOnFriendRequestAccepted(
+      void Function(Map<String, dynamic> data) callback) {
     _socket?.off('friend_request_accepted');
     _socket?.on('friend_request_accepted', (data) {
       if (data is Map<String, dynamic>) callback(data);
     });
   }
 
-  void setOnUserOnline(void Function(String userId, bool online, int? lastSeen) callback) {
+  void setOnUserOnline(
+      void Function(String userId, bool online, int? lastSeen) callback) {
     _socket?.off('user_online');
     _socket?.on('user_online', (data) {
       if (data is Map<String, dynamic>) {
@@ -110,7 +115,8 @@ class SocketService {
   }
 
   void emitTyping(String chatId, bool isTyping) {
-    _socket?.emit('typing', {'chatId': chatId, 'userId': _userId, 'isTyping': isTyping});
+    _socket?.emit(
+        'typing', {'chatId': chatId, 'userId': _userId, 'isTyping': isTyping});
   }
 
   bool get isConnected => _socket?.connected ?? false;

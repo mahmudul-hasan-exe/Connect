@@ -8,6 +8,10 @@ const blockRoutes = require('./blockRoutes');
 
 const router = express.Router();
 
+router.get('/health', (req, res) => {
+  res.json({ status: 'success', message: 'Everything is okay' });
+});
+
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/chats', chatRoutes);

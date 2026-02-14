@@ -4,18 +4,18 @@ import 'package:iconly/iconly.dart';
 import 'package:provider/provider.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/chat_controller.dart';
-import '../models/user_model.dart';
+import '../models/connection_request_model.dart';
 import '../theme/app_colors.dart';
-import 'chat_view.dart';
+import 'conversation_view.dart';
 
-class NewChatView extends StatefulWidget {
-  const NewChatView({super.key});
+class CreateChatView extends StatefulWidget {
+  const CreateChatView({super.key});
 
   @override
-  State<NewChatView> createState() => _NewChatViewState();
+  State<CreateChatView> createState() => _CreateChatViewState();
 }
 
-class _NewChatViewState extends State<NewChatView> {
+class _CreateChatViewState extends State<CreateChatView> {
   bool _loading = true;
 
   @override
@@ -28,7 +28,11 @@ class _NewChatViewState extends State<NewChatView> {
         chat.loadUsersWithStatus(auth.user!.id),
         chat.loadReceivedRequests(auth.user!.id),
       ]);
-      if (mounted) setState(() { _loading = false; });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     });
   }
 
@@ -47,12 +51,16 @@ class _NewChatViewState extends State<NewChatView> {
           backgroundColor: AppColors.surface,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(IconlyLight.arrow_left_2, color: colorScheme.onSurface, size: 24),
+            icon: Icon(IconlyLight.arrow_left_2,
+                color: colorScheme.onSurface, size: 24),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
             'All users',
-            style: GoogleFonts.poppins(color: colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.w600),
+            style: GoogleFonts.poppins(
+                color: colorScheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.w600),
           ),
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -65,19 +73,24 @@ class _NewChatViewState extends State<NewChatView> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(IconlyLight.arrow_left_2, color: colorScheme.onSurface, size: 24),
+          icon: Icon(IconlyLight.arrow_left_2,
+              color: colorScheme.onSurface, size: 24),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'All users',
-          style: GoogleFonts.poppins(color: colorScheme.onSurface, fontSize: 20, fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(
+              color: colorScheme.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.w600),
         ),
       ),
       body: users.isEmpty
           ? Center(
               child: Text(
                 'No other users. Open another device and sign in.',
-                style: GoogleFonts.poppins(color: colorScheme.onSurfaceVariant, fontSize: 15),
+                style: GoogleFonts.poppins(
+                    color: colorScheme.onSurfaceVariant, fontSize: 15),
                 textAlign: TextAlign.center,
               ),
             )
@@ -92,10 +105,12 @@ class _NewChatViewState extends State<NewChatView> {
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: colorScheme.outline.withOpacity(0.1)),
+                    side:
+                        BorderSide(color: colorScheme.outline.withValues(alpha: 0.1)),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     child: Row(
                       children: [
                         CircleAvatar(
@@ -103,7 +118,10 @@ class _NewChatViewState extends State<NewChatView> {
                           backgroundColor: colorScheme.primary,
                           child: Text(
                             u.name.isNotEmpty ? u.name[0].toUpperCase() : '?',
-                            style: GoogleFonts.poppins(color: AppColors.onPrimary, fontSize: 20, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.poppins(
+                                color: AppColors.onPrimary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -113,12 +131,17 @@ class _NewChatViewState extends State<NewChatView> {
                             children: [
                               Text(
                                 u.name,
-                                style: GoogleFonts.poppins(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w600),
+                                style: GoogleFonts.poppins(
+                                    color: colorScheme.onSurface,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 'ID: ${u.id}',
-                                style: GoogleFonts.poppins(color: colorScheme.onSurfaceVariant, fontSize: 12),
+                                style: GoogleFonts.poppins(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 12),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -127,24 +150,37 @@ class _NewChatViewState extends State<NewChatView> {
                         if (status == 'none')
                           TextButton.icon(
                             onPressed: () async {
-                              final ok = await chat.sendConnectionRequest(myId, u.id);
-                              if (!mounted) return;
+                              final ok =
+                                  await chat.sendConnectionRequest(myId, u.id);
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(ok ? 'Request sent' : 'Could not send request'),
-                                  backgroundColor: ok ? AppColors.online : Colors.red.shade300,
+                                  content: Text(ok
+                                      ? 'Request sent'
+                                      : 'Could not send request'),
+                                  backgroundColor: ok
+                                      ? AppColors.online
+                                      : Colors.red.shade300,
                                 ),
                               );
                             },
-                            icon: Icon(IconlyLight.send, size: 18, color: colorScheme.primary),
-                            label: Text('Send request', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: colorScheme.primary)),
+                            icon: Icon(IconlyLight.send,
+                                size: 18, color: colorScheme.primary),
+                            label: Text('Send request',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: colorScheme.primary)),
                           ),
                         if (status == 'pending_sent')
                           Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: Text(
                               'Pending',
-                              style: GoogleFonts.poppins(color: colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
+                              style: GoogleFonts.poppins(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontSize: 13,
+                                  fontStyle: FontStyle.italic),
                             ),
                           ),
                         if (status == 'pending_received')
@@ -152,20 +188,28 @@ class _NewChatViewState extends State<NewChatView> {
                             onPressed: () async {
                               ConnectionRequestModel? req;
                               for (final r in chat.receivedRequests) {
-                                if (r.fromUserId == u.id) { req = r; break; }
+                                if (r.fromUserId == u.id) {
+                                  req = r;
+                                  break;
+                                }
                               }
                               if (req == null) return;
-                              final ok = await chat.acceptConnectionRequest(req.id, myId);
-                              if (!mounted) return;
+                              final ok = await chat.acceptConnectionRequest(
+                                  req.id, myId);
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(ok ? 'Accepted' : 'Failed'),
-                                  backgroundColor: ok ? AppColors.online : Colors.red.shade300,
+                                  backgroundColor: ok
+                                      ? AppColors.online
+                                      : Colors.red.shade300,
                                 ),
                               );
                             },
                             icon: const Icon(IconlyLight.tick_square, size: 18),
-                            label: Text('Accept', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600)),
+                            label: Text('Accept',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13, fontWeight: FontWeight.w600)),
                           ),
                         if (status == 'connected')
                           TextButton.icon(
@@ -175,16 +219,21 @@ class _NewChatViewState extends State<NewChatView> {
                               if (c != null) {
                                 Navigator.of(context).pop();
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => ChatView(chat: c)),
+                                  MaterialPageRoute(
+                                      builder: (_) => ConversationView(chat: c)),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Connect first. Send a request and wait for acceptance.')),
+                                  const SnackBar(
+                                      content: Text(
+                                          'Connect first. Send a request and wait for acceptance.')),
                                 );
                               }
                             },
                             icon: const Icon(IconlyLight.chat, size: 18),
-                            label: Text('Chat', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600)),
+                            label: Text('Chat',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13, fontWeight: FontWeight.w600)),
                           ),
                       ],
                     ),

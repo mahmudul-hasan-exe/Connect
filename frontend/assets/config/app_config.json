@@ -1,0 +1,7 @@
+{
+  "apiBaseUrl": "http://192.168.1.102:3000",
+  "supabaseUrl": "https://xbbtbmcapngbtlvbgmix.supabase.co",
+  "supabaseAnonKey": "sb_publishable_Ke-Iu7tcbfGH9lqJJfmZFA__K4wRbi6",
+  "googleWebClientId": "763225330785-d2vohkibop2nfgrkgt2j7oae4l2pdlen.apps.googleusercontent.com",
+  "port": 3000
+}

@@ -4,7 +4,14 @@ const { isOnline, getLastSeen } = require('../store/onlineUsers');
 const { getUnread } = require('../store/unreadCount');
 const { isBlocked } = require('./blockController');
 
-function formatChatResponse(chat, other, lastMsg, userId, blockedByThem = false, iBlockedThem = false) {
+function formatChatResponse(
+  chat,
+  other,
+  lastMsg,
+  userId,
+  blockedByThem = false,
+  iBlockedThem = false
+) {
   return {
     id: chat._id.toString(),
     participants: chat.participants.map((p) => p.toString()),
@@ -53,9 +60,22 @@ async function getByUserId(req, res, next) {
       const lastMsg = await Message.findOne({ chat: chat._id })
         .sort({ createdAt: -1 })
         .lean();
-      const blockedByThem = otherIdStr ? await isBlocked(otherIdStr, userId) : false;
-      const iBlockedThem = otherIdStr ? await isBlocked(userId, otherIdStr) : false;
-      result.push(formatChatResponse(chat, other, lastMsg, userId, blockedByThem, iBlockedThem));
+      const blockedByThem = otherIdStr
+        ? await isBlocked(otherIdStr, userId)
+        : false;
+      const iBlockedThem = otherIdStr
+        ? await isBlocked(userId, otherIdStr)
+        : false;
+      result.push(
+        formatChatResponse(
+          chat,
+          other,
+          lastMsg,
+          userId,
+          blockedByThem,
+          iBlockedThem
+        )
+      );
     }
     result.sort(
       (a, b) =>
@@ -75,7 +95,8 @@ async function create(req, res, next) {
       return res.status(400).json({ error: 'Need exactly 2 participant ids' });
     }
     const otherUserId = participantIds.find((id) => id !== userId);
-    if (!otherUserId) return res.status(400).json({ error: 'Invalid participants' });
+    if (!otherUserId)
+      return res.status(400).json({ error: 'Invalid participants' });
     const u1 = new mongoose.Types.ObjectId(userId);
     const u2 = new mongoose.Types.ObjectId(otherUserId);
     const connected = await ConnectionRequest.findOne({
@@ -85,9 +106,15 @@ async function create(req, res, next) {
       ],
     });
     if (!connected) {
-      return res.status(403).json({ error: 'Connect first. Send a request and wait for acceptance.' });
+      return res
+        .status(403)
+        .json({
+          error: 'Connect first. Send a request and wait for acceptance.',
+        });
     }
-    const sorted = [u1, u2].sort((a, b) => a.toString().localeCompare(b.toString()));
+    const sorted = [u1, u2].sort((a, b) =>
+      a.toString().localeCompare(b.toString())
+    );
     let chat = await Chat.findOne({ participants: { $all: sorted } }).lean();
     if (!chat) {
       const created = await Chat.create({ participants: sorted });
@@ -96,9 +123,24 @@ async function create(req, res, next) {
     const otherId = chat.participants.find((p) => p.toString() !== userId);
     const otherIdStr = otherId?.toString();
     const other = otherId ? await User.findById(otherId).lean() : null;
-    const blockedByThem = otherIdStr ? await isBlocked(otherIdStr, userId) : false;
-    const iBlockedThem = otherIdStr ? await isBlocked(userId, otherIdStr) : false;
-    res.status(201).json(formatChatResponse(chat, other, null, userId, blockedByThem, iBlockedThem));
+    const blockedByThem = otherIdStr
+      ? await isBlocked(otherIdStr, userId)
+      : false;
+    const iBlockedThem = otherIdStr
+      ? await isBlocked(userId, otherIdStr)
+      : false;
+    res
+      .status(201)
+      .json(
+        formatChatResponse(
+          chat,
+          other,
+          null,
+          userId,
+          blockedByThem,
+          iBlockedThem
+        )
+      );
   } catch (err) {
     next(err);
   }

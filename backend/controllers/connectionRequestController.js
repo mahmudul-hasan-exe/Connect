@@ -5,12 +5,18 @@ const { isOnline, getLastSeen, getSocketId } = require('../store/onlineUsers');
 async function getStatus(userId, otherUserId) {
   const u1 = new mongoose.Types.ObjectId(userId);
   const u2 = new mongoose.Types.ObjectId(otherUserId);
-  const sent = await ConnectionRequest.findOne({ fromUser: u1, toUser: u2 }).lean();
+  const sent = await ConnectionRequest.findOne({
+    fromUser: u1,
+    toUser: u2,
+  }).lean();
   if (sent) {
     if (sent.status === 'accepted') return 'connected';
     if (sent.status === 'pending') return 'pending_sent';
   }
-  const received = await ConnectionRequest.findOne({ fromUser: u2, toUser: u1 }).lean();
+  const received = await ConnectionRequest.findOne({
+    fromUser: u2,
+    toUser: u1,
+  }).lean();
   if (received) {
     if (received.status === 'accepted') return 'connected';
     if (received.status === 'pending') return 'pending_received';
@@ -41,7 +47,11 @@ async function send(req, res, next) {
       }
       return res.status(400).json({ error: 'They already sent you a request' });
     }
-    const doc = await ConnectionRequest.create({ fromUser: from, toUser: to, status: 'pending' });
+    const doc = await ConnectionRequest.create({
+      fromUser: from,
+      toUser: to,
+      status: 'pending',
+    });
     const fromUser = await User.findById(from).lean();
     const payload = {
       id: doc._id.toString(),
@@ -105,7 +115,8 @@ async function accept(req, res, next) {
     };
     const io = req.app.get('io');
     const fromSocketId = getSocketId(doc.fromUser.toString());
-    if (io && fromSocketId) io.to(fromSocketId).emit('friend_request_accepted', payload);
+    if (io && fromSocketId)
+      io.to(fromSocketId).emit('friend_request_accepted', payload);
     res.json({
       id: doc._id.toString(),
       fromUserId: doc.fromUser.toString(),

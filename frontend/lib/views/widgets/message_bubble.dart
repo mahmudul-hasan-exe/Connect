@@ -19,8 +19,10 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final time = DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(message.createdAt));
-    final bubbleColor = isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
+    final time = DateFormat('HH:mm')
+        .format(DateTime.fromMillisecondsSinceEpoch(message.createdAt));
+    final bubbleColor =
+        isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
     final textColor = isMe ? AppColors.onPrimary : colorScheme.onSurface;
 
     return Align(
@@ -28,7 +30,8 @@ class MessageBubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
         decoration: BoxDecoration(
           color: bubbleColor,
           borderRadius: BorderRadius.only(
@@ -44,7 +47,8 @@ class MessageBubble extends StatelessWidget {
           children: [
             Text(
               message.text,
-              style: GoogleFonts.poppins(color: textColor, fontSize: 16, height: 1.3),
+              style: GoogleFonts.poppins(
+                  color: textColor, fontSize: 16, height: 1.3),
             ),
             if (showTime) ...[
               const SizedBox(height: 4),
@@ -55,7 +59,9 @@ class MessageBubble extends StatelessWidget {
                   Text(
                     time,
                     style: GoogleFonts.poppins(
-                      color: isMe ? AppColors.onPrimary.withOpacity(0.9) : colorScheme.onSurfaceVariant,
+                      color: isMe
+                          ? AppColors.onPrimary.withValues(alpha: 0.9)
+                          : colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
@@ -68,7 +74,9 @@ class MessageBubble extends StatelessWidget {
                               ? 'Delivered'
                               : 'Sent',
                       style: GoogleFonts.poppins(
-                        color: isMe ? AppColors.onPrimary.withOpacity(0.9) : colorScheme.onSurfaceVariant,
+                        color: isMe
+                            ? AppColors.onPrimary.withValues(alpha: 0.9)
+                            : colorScheme.onSurfaceVariant,
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
                       ),

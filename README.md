@@ -1,114 +1,53 @@
 # Connect
 
-Real-time chat app with a Node.js/Express backend and Flutter frontend. Sign in with your name, send connection requests, then chat with real-time messaging, typing indicators, and block support.
-
-**Quick start:** Install and run the backend (`cd backend && npm install && npm start`), set `MONGODB_URI` in `.env`, then run the frontend (`cd frontend && flutter pub get && flutter run`). Ensure MongoDB is running.
-
----
-
-## Project structure
-
-```
-chatapp/
-├── backend/     Node.js API + Socket.io
-├── frontend/    Flutter app (Connect)
-└── README.md
-```
+Real-time chat application with Google Sign-In. Node.js/Express + Socket.io backend, Flutter mobile frontend.
 
 ---
 
 ## Features
 
-**Auth & onboarding** — Name-only sign-in; first-time onboarding; session persistence.
-
-**Profile** — View/edit name and avatar; logout.
-
-**Connections** — Send and accept connection requests; see connection status before starting a chat.
-
-**Chats & messaging** — Chat list with last message and unread count; new chat with connected users; real-time send/receive via Socket.io; latest message pinned to bottom; sent/delivered status.
-
-**Real-time** — Typing indicator; online status and last seen; live message and status updates.
-
-**Block & privacy** — Block/Unblock from chat 3-dot menu; “You have blocked” / “You are blocked” banners; blocked sender’s new messages are not delivered.
-
-**UX** — Notification screen for requests; unread and request badges; Connect branding on splash and login.
+| Category | Description |
+|----------|-------------|
+| **Auth** | Google Sign-In (Supabase), onboarding, session persistence |
+| **Profile** | Name, avatar, online/offline status, logout |
+| **Connections** | Send/accept connection requests, status before chat |
+| **Chat** | Chat list, unread count, real-time messaging, sent/delivered status |
+| **Real-time** | Typing indicator, online status, last seen |
+| **Privacy** | Block/unblock users, in-chat block banners |
+| **UX** | Notification screen, unread and request badges |
 
 ---
 
-## Backend
+## Project Structure
 
-Node.js, Express, MongoDB (Mongoose), Socket.io. Package: `connect-backend`.
-
-**Setup**
-
-```bash
-cd backend
-npm install
 ```
-
-Create `.env` (see `.env.example`):
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/connect
+Connect/
+├── backend/     Node.js API, MongoDB, Socket.io
+│   ├── config/
+│   ├── controllers/
+│   ├── database/
+│   ├── models/
+│   ├── routes/
+│   ├── socket/
+│   └── server.js
+├── frontend/    Flutter app (connect_app)
+│   ├── assets/config/
+│   └── lib/
+│       ├── config/
+│       ├── controllers/
+│       ├── models/
+│       ├── services/
+│       ├── theme/
+│       ├── utils/
+│       └── views/
+└── README.md
 ```
-
-**Run**
-
-```bash
-npm start
-```
-
-API base: `http://localhost:3000`
-
-**API**
-
-| Method | Route | Description |
-|--------|--------|-------------|
-| POST | `/api/auth` | Sign in (body: `name`, optional `avatar`) |
-| GET | `/api/users` | List users |
-| GET | `/api/chats/:userId` | List chats (`blockedByThem`, `iBlockedThem` per chat) |
-| POST | `/api/chats` | Create chat (body: `userId`, `participantIds`) |
-| GET | `/api/messages/:chatId` | Messages (query: `userId` for block flags, unread clear) |
-| POST | `/api/connection-requests` | Send request (body: `fromUserId`, `toUserId`) |
-| GET | `/api/connection-requests/received/:userId` | Received requests |
-| PATCH | `/api/connection-requests/:id/accept` | Accept request |
-| POST | `/api/blocks` | Block (body: `blockerId`, `blockedId`) |
-| DELETE | `/api/blocks` | Unblock (body or query: `blockerId`, `blockedId`) |
-
-**Socket**
-
-- **Client → Server:** `auth(userId)`, `send_message(chatId, senderId, text)`, `typing(chatId, userId, isTyping)`
-- **Server → Client:** `message`, `message_status`, `typing`, `user_online`
-
-If the recipient has blocked the sender, new messages are not emitted to the recipient.
 
 ---
 
-## Frontend
+## Refactoring Log
 
-Flutter app **Connect** (`connect_chat`). Provider, `http`, `socket_io_client`.
-
-**Setup**
-
-```bash
-cd frontend
-flutter pub get
-```
-
-Set base URL in `lib/services/api_service.dart` (default `http://localhost:3000`). Use your machine’s LAN IP for a physical device.
-
-**Run**
-
-```bash
-flutter run
-```
-
-Start the backend first so the app can reach the API and socket.
-
----
-
-## Requirements
-
-- **Backend:** Node.js, MongoDB (local or Atlas)
-- **Frontend:** Flutter SDK; Android or iOS simulator or device
+- **Views:** `splash_screen` → `app_entry_view`; `chat_view` → `conversation_view`; `chats_view` → `inbox_view`; `new_chat_view` → `create_chat_view`; all views use `_view` suffix
+- **Config:** Central config in `app_config.json`; Supabase + JWKS JWT verification
+- **Backend:** Database connection refactored; removed debug code, Prettier config, ngrok
+- **Code quality:** Flutter analyze clean; deprecated APIs updated
