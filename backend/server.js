@@ -36,7 +36,6 @@ const { PORT } = require('./config/constants');
 connectDB()
   .then(() => {
     server.listen(PORT, () => {
-      console.log('Connect API running on port', PORT);
     });
   })
   .catch((err) => {

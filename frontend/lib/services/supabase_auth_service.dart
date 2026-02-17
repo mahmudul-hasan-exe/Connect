@@ -24,9 +24,12 @@ class SupabaseAuthService {
     }
     final clientId = AppConfig.instance.googleWebClientId;
     if (clientId.isEmpty) {
-      throw StateError(
-        'googleWebClientId not set in app_config.json',
-      );
+      throw StateError('googleWebClientId not set in app_config.json');
+    }
+    if (clientId.contains('your-google') ||
+        clientId.contains('your-project') ||
+        clientId.contains('placeholder')) {
+      throw StateError('Replace placeholder values in app_config.json');
     }
     await _signInWithGoogleNative();
   }
@@ -57,7 +60,7 @@ class SupabaseAuthService {
           msg.toLowerCase().contains('developer') ||
           msg.toLowerCase().contains('api_not_enabled')) {
         msg = Platform.isAndroid
-            ? 'Google Sign-In config error. Add SHA-1 to Google Cloud Console → Credentials → Android OAuth client (com.connect.app)'
+            ? 'Add SHA-1 to Google Cloud → Credentials → Android OAuth client'
             : 'Google Sign-In config error. Check Google Cloud Console.';
       }
       throw Exception(msg);

@@ -1,7 +1,7 @@
 {
-  "apiBaseUrl": "http://localhost:3000",
+  "apiBaseUrl": "http://localhost:3002",
   "supabaseUrl": "https://your-project.supabase.co",
   "supabaseAnonKey": "your-supabase-anon-key",
-  "googleWebClientId": "your-google-web-client-id.apps.googleusercontent.com",
-  "port": 3000
+  "googleWebClientId": "your-google-client-id.apps.googleusercontent.com",
+  "port": 3002
 }
